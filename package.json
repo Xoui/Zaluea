@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "bare-server-node": "https://github.com/tomphttp/bare-server-node",
-    "node-static": "^0.7.11"
+    "discord.js": "^14.13.0"
   }
 }
