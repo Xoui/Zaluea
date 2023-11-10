@@ -32,6 +32,11 @@ document.querySelector('form').addEventListener('submit', function(e) {
     // Update chat history in local storage
     chatHistory.length = 0;
     localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+  } else if (message.startsWith('/rename')) {
+    const newName = message.split(' ')[1]; // Extract the new name from the message
+    if (newName) {
+      socket.emit('rename', newName);
+    }
   } else if (message) {
     // Emit raw message to the server
     socket.emit('chat message', message);
@@ -41,6 +46,17 @@ document.querySelector('form').addEventListener('submit', function(e) {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   document.querySelector('#m').value = '';
+});
+
+// Handle the 'rename' event from the server
+socket.on('rename', function(data) {
+  const { oldName, newName } = data;
+  // Update the displayed messages when a user changes their name
+  document.querySelectorAll('li').forEach((item) => {
+    if (item.innerHTML.includes(`${oldName}:`)) {
+      item.innerHTML = item.innerHTML.replace(`${oldName}:`, `${newName}:`);
+    }
+  });
 });
 
 socket.on('chat message', function(msg) {
