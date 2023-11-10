@@ -33,10 +33,6 @@ io.on('connection', (socket) => {
 
 
 
-socket.on('clear messages', () => {
-  // Clear messages globally
-  io.emit('chat message', '[Server]: All messages have been cleared.');
-});
 
 
 
