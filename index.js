@@ -28,6 +28,11 @@ function isUserBanned(username) {
   return bannedUsers.includes(username);
 }
 
+// Function to check if the provided credentials are valid
+function isValidCredentials(username, password) {
+  return admins.some(admin => admin.username === username && admin.password === password);
+}
+
 // Function to ban a user
 function banUser(username) {
   if (!isUserBanned(username)) {
@@ -43,13 +48,24 @@ function getBanList() {
 
 io.on('connection', (socket) => {
   socket.on('chat message', (msg) => {
-    // Check if the message is a ban command
-    if (msg.startsWith('/ban')) {
-      // Extract the username from the message
-      const [, usernameToBan] = msg.split(' ');
+    // Check if the message is a login command
+    if (msg.startsWith('/login')) {
+      // Extract the username and password from the message
+      const [, username, password] = msg.split(' ');
 
+      if (isValidCredentials(username, password)) {
+        socket.username = username;
+        socket.isAdmin = true; // Mark the socket as an admin
+        io.emit('chat message', `[Server]: ${username} (Admin) has joined the chat.`);
+      } else {
+        io.emit('chat message', `[Server]: Invalid login attempt for ${username}.`);
+        socket.disconnect(); // Disconnect the user on an invalid login
+      }
+    } else if (msg.startsWith('/ban')) {
+      // Check if the message is a ban command
       if (socket.isAdmin) {
         // Only admins can use the ban command
+        const [, usernameToBan] = msg.split(' ');
         banUser(usernameToBan);
       } else {
         io.emit('chat message', `[Server]: Only admins can use the /ban command.`);
